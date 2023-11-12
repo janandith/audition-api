@@ -6,9 +6,9 @@ plugins {
     id 'jacoco'
     id "com.github.spotbugs" version "5.0.14"
     id "io.freefair.lombok" version "8.0.1"
-    // TODO Enable checkstyle and PMD. Fix all the relevant issues.
-    //id "checkstyle"
-    //id "pmd"
+    // Enable checkstyle and PMD. Fix all the relevant issues.
+    id "checkstyle"
+    id "pmd"
 }
 
 group = 'com.audition'
@@ -17,8 +17,8 @@ sourceCompatibility = '17'
 targetCompatibility = '17'
 
 
-// TODO allow for code-analysis.gradle to be applied for code analysis.
-// apply from: 'config/code-analysis.gradle'
+// Allow for code-analysis.gradle to be applied for code analysis.
+apply from: 'config/code-analysis.gradle'
 
 configurations {
     compileOnly {
@@ -33,25 +33,25 @@ repositories {
 ext {
     set('springCloudVersion', "2022.0.1")
     set('logbackVersion', "1.4.5")
+    set('logstashEncoderVersion', "7.4")
     set('slf4jVersion', "2.0.5")
     set('springdocVersion', "2.0.2")
 }
 
 dependencies {
-
-    // TODO Clean up unused dependencies. Add comments on consideration on any improvements you made.
+    // Clean up unused dependencies. Add comments on consideration on any improvements you made.
     implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+//    implementation "org.springframework.boot:spring-boot-starter-data-jpa" - Database is not used
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.cloud:spring-cloud-starter-config"
-    implementation "org.springframework.boot:spring-boot-starter-webflux"
+//    implementation "org.springframework.boot:spring-boot-starter-webflux" - Webflux not used. It's an improvement over RestTemplate
     implementation "org.springframework.boot:spring-boot-starter-aop"
     implementation "io.micrometer:micrometer-tracing-bridge-brave"
     implementation "io.micrometer:micrometer-tracing"
     implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "io.micrometer:context-propagation"
-    implementation "org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j"
-    implementation "org.springframework.cloud:spring-cloud-starter-config"
+//    implementation "org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j" - Doesn't use spring cloud.
+//    implementation "org.springframework.cloud:spring-cloud-starter-config" - Doesn't use spring cloud.
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
 
     developmentOnly "org.springframework.boot:spring-boot-devtools"
@@ -61,9 +61,13 @@ dependencies {
     implementation "org.slf4j:slf4j-api:${slf4jVersion}"
     implementation "ch.qos.logback:logback-core:${logbackVersion}"
     implementation "ch.qos.logback:logback-classic:${logbackVersion}"
+    implementation "net.logstash.logback:logstash-logback-encoder:${logstashEncoderVersion}"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "io.projectreactor:reactor-test"
+    testImplementation "org.mockito:mockito-junit-jupiter:2.23.0"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 dependencyManagement {

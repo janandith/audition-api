@@ -59,6 +59,7 @@ jacocoTestCoverageVerification {
         }
     }
 }
+check.dependsOn jacocoTestCoverageVerification
 
 spotbugs {
     ignoreFailures = true

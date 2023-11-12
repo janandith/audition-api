@@ -21,13 +21,18 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
-    public static final String DEFAULT_TITLE = "API Error Occurred";
     private static final Logger LOG = LoggerFactory.getLogger(ExceptionControllerAdvice.class);
+    public static final String DEFAULT_TITLE = "API Error Occurred";
     private static final String ERROR_MESSAGE = " Error Code from Exception could not be mapped to a valid HttpStatus Code - ";
     private static final String DEFAULT_MESSAGE = "API Error occurred. Please contact support or administrator.";
 
+    private transient AuditionLogger logger;
+
     @Autowired
-    private AuditionLogger logger;
+    public ExceptionControllerAdvice(final AuditionLogger auditionLogger) {
+        super();
+        this.logger = auditionLogger;
+    }
 
     @ExceptionHandler(HttpClientErrorException.class)
     ProblemDetail handleHttpClientException(final HttpClientErrorException e) {
@@ -35,23 +40,27 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     }
 
-
     @ExceptionHandler(Exception.class)
     ProblemDetail handleMainException(final Exception e) {
-        // TODO Add handling for Exception
+        // Add handling for Exception
+        if (LOG.isErrorEnabled()) {
+            LOG.error(e.getMessage(), e);
+        }
+
         final HttpStatusCode status = getHttpStatusCodeFromException(e);
         return createProblemDetail(e, status);
-
     }
 
     @ExceptionHandler(SystemException.class)
     ProblemDetail handleSystemException(final SystemException e) {
-        // TODO `Add Handling for SystemException
+        // Add Handling for SystemException
+        if (LOG.isErrorEnabled()) {
+            LOG.error(e.getMessage(), e);
+        }
+
         final HttpStatusCode status = getHttpStatusCodeFromSystemException(e);
         return createProblemDetail(e, status);
-
     }
-
 
     private ProblemDetail createProblemDetail(final Exception exception,
         final HttpStatusCode statusCode) {
@@ -76,7 +85,9 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
         try {
             return HttpStatusCode.valueOf(exception.getStatusCode());
         } catch (final IllegalArgumentException iae) {
-            logger.info(LOG, ERROR_MESSAGE + exception.getStatusCode());
+            if (LOG.isInfoEnabled()) {
+                logger.info(LOG, ERROR_MESSAGE + exception.getStatusCode());
+            }
             return INTERNAL_SERVER_ERROR;
         }
     }

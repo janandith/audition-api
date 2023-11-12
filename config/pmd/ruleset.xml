@@ -41,5 +41,4 @@
             <property name="maximumAsserts" value="7"/>
         </properties>
     </rule>
-
 </ruleset>
